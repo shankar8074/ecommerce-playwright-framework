@@ -4,6 +4,9 @@ import pytest
 # Page is the browser tab type; expect gives assertions that retry automatically
 from playwright.sync_api import Page, expect
 
+from pages.home_page import HomePage
+from pages.login_page import LoginPage
+
 
 # Credentials come from environment variables so they are never saved in the code
 # (or in git), and each person or CI server can use its own account
@@ -21,17 +24,14 @@ def test_login_with_valid_credentials(page: Page):
     email = get_env("TEST_USER_EMAIL")
     password = get_env("TEST_USER_PASSWORD")
 
-    # Open the login page; goto waits until the page has loaded
-    page.goto("https://automationexercise.com/login")
+    # Create the page objects, both sharing the same browser tab
+    login_page = LoginPage(page)
+    home_page = HomePage(page)
 
-    # Type the email into the LOGIN form's email box (data-qa avoids the signup email box)
-    page.locator("[data-qa='login-email']").fill(email)
+    # Open the login page and sign in
+    login_page.open()
+    login_page.login(email, password)
 
-    # Type the password into the login form's password box
-    page.locator("[data-qa='login-password']").fill(password)
-
-    # Click Login; Playwright waits for the button to be visible and enabled first
-    page.locator("[data-qa='login-button']").click()
-
-    # Check the header shows the logged-in user; keeps retrying for up to 5 seconds
-    expect(page.get_by_text("Logged in as Shankar")).to_be_visible()
+    # Check the header shows the logged-in user; expect keeps retrying for up to 5 seconds
+    expect(home_page.logged_in_as_text).to_be_visible()
+    expect(home_page.logged_in_as_text).to_contain_text("Logged in as shankar")
