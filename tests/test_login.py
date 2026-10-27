@@ -32,6 +32,6 @@ def test_login_with_valid_credentials(page: Page):
     login_page.open()
     login_page.login(email, password)
 
-    # Check the header shows the logged-in user; expect keeps retrying for up to 5 seconds
+    #Check the header shows the logged-in user; expect keeps retrying for up to 5 seconds
     expect(home_page.logged_in_as_text).to_be_visible()
     expect(home_page.logged_in_as_text).to_contain_text("Logged in as shankar")
