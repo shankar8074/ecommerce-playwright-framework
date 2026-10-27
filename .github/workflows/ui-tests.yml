@@ -1,0 +1,47 @@
+# Name shown in the GitHub "Actions" tab
+name: UI Tests
+
+# When the workflow runs: on every push, on pull requests, and by hand from the Actions tab
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ui-tests:
+    # Use a fresh Linux machine provided by GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      # Download the repository's code onto the machine
+      - name: Check out code
+        uses: actions/checkout@v5
+
+      # Install Python 3.12 and make it the default python/pip
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # Install pytest, pytest-playwright and pytest-html
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Download Chromium plus the Linux system libraries it needs to run
+      - name: Install Playwright browser
+        run: playwright install --with-deps chromium
+
+      # Run the tests; credentials come from the repository's GitHub Secrets
+      - name: Run tests
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: pytest
+
+      # Save the HTML report so it can be downloaded, even if tests failed
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: reports/
