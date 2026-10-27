@@ -6,14 +6,14 @@ pipeline {
         // Install pytest, pytest-playwright and pytest-html
         stage('Install dependencies') {
             steps {
-                bat 'pip install -r requirements.txt'
+                bat 'python -m pip install -r requirements.txt'
             }
         }
 
         // Download the Chromium browser that Playwright controls
         stage('Install browser') {
             steps {
-                bat 'playwright install chromium'
+                bat 'python -m playwright install chromium'
             }
         }
 
@@ -25,7 +25,7 @@ pipeline {
                     string(credentialsId: 'TEST_USER_EMAIL', variable: 'TEST_USER_EMAIL'),
                     string(credentialsId: 'TEST_USER_PASSWORD', variable: 'TEST_USER_PASSWORD')
                 ]) {
-                    bat 'pytest --junitxml=reports/junit.xml'
+                    bat 'python -m pytest --junitxml=reports/junit.xml'
                 }
             }
         }
